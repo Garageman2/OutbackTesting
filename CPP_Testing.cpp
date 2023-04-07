@@ -7,9 +7,9 @@
 #include <variant>
 
 
-//TODO: is there a way to do this as an interface with child implementation as a template?
 class Freezable
 {
+      
     public:
         std::string m_name;
         std::pair<int, int > m_position;
@@ -43,6 +43,11 @@ class Freezable
             std::cout << "jump " << std::endl;
         }
 
+        void jump_wrap()
+        {
+            m_actions.push_back(&Freezable::jump);
+            jump(true);
+        }
         
         Freezable(std::string name, int x = 0, int y = 0)
         {
@@ -56,66 +61,39 @@ class Freezable
 };
 
 class chandelier: public Freezable
-{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+{           
+    public:
+
+        chandelier(std::string name, int x = 0, int y = 0)
+            :Freezable(name,x,y)
+        {}
     private:
         void fall(bool forward)
         {
             m_position.first = 10;
             m_position.second = 10;
+            std::cout << "fell" << std::endl;
 
         }
 
     public:
         void fall_wrap()
         {
-            auto thing = fall;
-            m_actions.push_back(jump);
-            m_actions.push_back
+            m_actions.push_back(static_cast<void (Freezable::*)(bool)>(&chandelier::fall));
+            fall(true);
         }
+
 };
 
-void fall(std::string name, bool forward)
-{
-    if (forward)
-    {
-        std::cout << name + " fell" << std::endl;
-    }
-    else
-    {
-        std::cout << name + " rose back into place" << std::endl;
-    }
-   
-}
-
-void shatter(std::string name,bool forward)
-{
-    if (forward)
-    {
-        std::cout << name + " shattered" << std::endl;
-    }
-    else
-    {
-        std::cout << name + " reconstituted itself" << std::endl;
-    }
-}
 
 int main()
 {
-    Freezable j = Freezable("Chandalier");
-    std::deque <void (*)(std::string, bool) > actions = std::deque<void (*)(std::string, bool)>();
-    
-    actions.push_back(shatter);
-    actions.push_back(fall);
-    
-    for (int i = 0; i < actions.size(); i++)
-    {
-        actions[i]("A rare 14th century Ming Dynasty Vase", true);
-    }
+    chandelier j = chandelier("Crystal Chandelier");
 
-    for (int i = actions.size()-1; i >= 0; i--)
-    {
-        actions[i]("The rare 14th century Ming Dynasty Vase", false);
-    }
+    j.fall_wrap();
+    j.jump_wrap();
+    j.exec_actions(false);
+
 
 
     return 0;
