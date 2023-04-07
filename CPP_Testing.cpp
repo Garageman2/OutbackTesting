@@ -5,14 +5,15 @@
 #include <string>
 #include <deque>
 
-
 class Freezable
 {
     public:
         std::string m_name;
         std::pair<int, int > m_position;
+        bool m_frozen;
+        bool m_move_forward;
     protected:
-        std::deque <void (*)(std::string, bool) > m_actions;
+        std::deque <void (Freezable::*)(bool) > m_actions;
     public:
         void exec_actions(bool forward)
         {
@@ -20,14 +21,14 @@ class Freezable
             {
                 for (int i = 0; i < m_actions.size(); i++)
                 {
-                    m_actions[i](m_name, true);
+                    std::invoke(m_actions[i], this, true);
                 }
             }
             else
             {
                 for (int i = m_actions.size()-1; i >= 0; i--)
                 {
-                    m_actions[i](m_name, false);
+                    std::invoke(m_actions[i], this, false);
                 }
             }
 
@@ -37,16 +38,29 @@ class Freezable
         {
             m_name = name;
             m_position = std::pair<int, int>(x, y);
-            m_actions = std::deque <void (*)(std::string, bool)>();
+            m_actions = std::deque <void (Freezable::*)(bool)>();
+            m_frozen = false;
+            m_move_forward = true;
         }
 
 };
 
-class chandelier: public Freezable
-{
-    public:
-        std::string Shape;
-};
+//class chandelier: public Freezable
+//{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+//    private:
+//        void fall(bool forward)
+//        {
+//            m_position.first = 10;
+//            m_position.second = 10;
+//
+//        }
+//
+//    public:
+//        void fall_wrap()
+//        {
+//            m_actions.push_back(fall);
+//        }
+//};
 
 void fall(std::string name, bool forward)
 {
@@ -75,7 +89,7 @@ void shatter(std::string name,bool forward)
 
 int main()
 {
-    Freezable j = Freezable();
+    Freezable j = Freezable("Chandalier");
     std::deque <void (*)(std::string, bool) > actions = std::deque<void (*)(std::string, bool)>();
     
     actions.push_back(shatter);
