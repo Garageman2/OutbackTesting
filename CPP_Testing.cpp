@@ -85,6 +85,20 @@ class chandelier: public Freezable
 
 };
 
+void lerp_property(float& property, int time, float end)
+{
+    float delta = end - property;
+    float base = property;
+
+    for (double i = 0.0f; i <= static_cast<double>(time); i = i + .01)
+    {
+        double frac = i / static_cast<double>(time);
+        property = base + (delta * frac);
+        std::cout << "The property is :" << property << std::endl;
+
+    }
+}
+
 
 int main()
 {
@@ -94,6 +108,9 @@ int main()
     j.jump_wrap();
     j.exec_actions(false);
 
+
+    float num = 0;
+    lerp_property(num, 3.0, 20);
 
 
     return 0;
